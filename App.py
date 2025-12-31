@@ -7,7 +7,7 @@ import joblib
 
 # Try loading with joblib if pickle continues to fail
 kmeans = joblib.load("kmeans_model.pkl")
-
+dbScan = joblib.load("dbscan_model.pkl")
 st.title("Clustering Comparison: K-Means vs DBSCAN")
 
 # Load data
@@ -18,9 +18,6 @@ X = df[['Annual Income (k$)', 'Spending Score (1-100)']]
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-# Load models
-kmeans = pickle.load(open("kmeans_model.pkl", "rb"))
-dbscan = pickle.load(open("dbscan_model.pkl", "rb"))
 
 # Predictions
 df['KMeans Cluster'] = kmeans.predict(X_scaled)
@@ -49,6 +46,7 @@ st.write("""
 - **DBSCAN** detects noise and finds arbitrary-shaped clusters.
 - DBSCAN labels noise as **-1**.
 """)
+
 
 
 
