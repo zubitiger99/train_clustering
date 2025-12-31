@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 st.title("Clustering Comparison: K-Means vs DBSCAN")
 
 # Load data
-df = pd.read_csv("data/Mall_Customers.csv")
+df = pd.read_csv("Mall_Customers.csv")
 X = df[['Annual Income (k$)', 'Spending Score (1-100)']]
 
 # Scale
@@ -45,3 +45,4 @@ st.write("""
 - **DBSCAN** detects noise and finds arbitrary-shaped clusters.
 - DBSCAN labels noise as **-1**.
 """)
+
