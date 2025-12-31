@@ -15,8 +15,8 @@ scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
 # Load models
-kmeans = pickle.load(open("models/kmeans_model.pkl", "rb"))
-dbscan = pickle.load(open("models/dbscan_model.pkl", "rb"))
+kmeans = pickle.load(open("kmeans_model.pkl", "rb"))
+dbscan = pickle.load(open("dbscan_model.pkl", "rb"))
 
 # Predictions
 df['KMeans Cluster'] = kmeans.predict(X_scaled)
@@ -45,4 +45,5 @@ st.write("""
 - **DBSCAN** detects noise and finds arbitrary-shaped clusters.
 - DBSCAN labels noise as **-1**.
 """)
+
 
