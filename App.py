@@ -3,6 +3,10 @@ import pandas as pd
 import pickle
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
+import joblib
+
+# Try loading with joblib if pickle continues to fail
+kmeans = joblib.load("kmeans_model.pkl")
 
 st.title("Clustering Comparison: K-Means vs DBSCAN")
 
@@ -45,5 +49,6 @@ st.write("""
 - **DBSCAN** detects noise and finds arbitrary-shaped clusters.
 - DBSCAN labels noise as **-1**.
 """)
+
 
 
