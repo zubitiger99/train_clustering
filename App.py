@@ -5,6 +5,24 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 import joblib
 
+
+
+# 1. Load the models at the start
+try:
+    with open("kmeans_model.pkl", "rb") as f:
+        kmeans = pickle.load(f)
+    with open("dbscan_model.pkl", "rb") as f:
+        dbscan = pickle.load(f)
+except FileNotFoundError:
+    st.error("Model files not found! Please check if .pkl files are in the repository.")
+    st.stop() # Stops the app from running the rest of the code
+
+# ... your data processing code (X_scaled definition) ...
+
+# 2. Now use the models
+if 'dbscan' in locals():
+    df['DBSCAN Cluster'] = dbscan.fit_predict(X_scaled)
+
 # Try loading with joblib if pickle continues to fail
 kmeans = joblib.load("kmeans_model.pkl")
 dbScan = joblib.load("dbscan_model.pkl")
@@ -46,6 +64,7 @@ st.write("""
 - **DBSCAN** detects noise and finds arbitrary-shaped clusters.
 - DBSCAN labels noise as **-1**.
 """)
+
 
 
 
