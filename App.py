@@ -1,71 +1,67 @@
 import streamlit as st
 import pandas as pd
-import pickle
+import joblib
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
-import joblib
 
-
-
-# 1. Load the models at the start
-try:
-    with open("kmeans_model.pkl", "rb") as f:
-        kmeans = pickle.load(f)
-    with open("dbscan_model.pkl", "rb") as f:
-        dbscan = pickle.load(f)
-except FileNotFoundError:
-    st.error("Model files not found! Please check if .pkl files are in the repository.")
-    st.stop() # Stops the app from running the rest of the code
-
-# ... your data processing code (X_scaled definition) ...
-
-# 2. Now use the models
-if 'dbscan' in locals():
-    df['DBSCAN Cluster'] = dbscan.fit_predict(X_scaled)
-
-# Try loading with joblib if pickle continues to fail
-kmeans = joblib.load("kmeans_model.pkl")
-dbScan = joblib.load("dbscan_model.pkl")
 st.title("Clustering Comparison: K-Means vs DBSCAN")
 
-# Load data
-df = pd.read_csv("Mall_Customers.csv")
-X = df[['Annual Income (k$)', 'Spending Score (1-100)']]
+# 1. Load Data First
+try:
+    df = pd.read_csv("Mall_Customers.csv")
+    # Identify the correct column names from your CSV
+    X = df[['Annual Income (k$)', 'Spending Score (1-100)']]
+except FileNotFoundError:
+    st.error("Dataset 'Mall_Customers.csv' not found. Please upload it to your GitHub repo.")
+    st.stop()
 
-# Scale
+# 2. Scale Data (Models need scaled data to make accurate predictions)
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
+# 3. Load Models (Using joblib as it is more robust for Scikit-Learn)
+try:
+    kmeans = joblib.load("kmeans_model.pkl")
+    dbscan = joblib.load("dbscan_model.pkl") # Standardized to lowercase
+except FileNotFoundError:
+    st.error("Model files (.pkl) not found! Ensure they are in the same folder as app.py.")
+    st.stop()
 
-# Predictions
+# 4. Predictions
+# K-Means uses .predict
 df['KMeans Cluster'] = kmeans.predict(X_scaled)
+
+# DBSCAN: Note that saved DBSCAN models usually need to be re-fit on the data
+# if they were not saved with the core_sample_indices_
 df['DBSCAN Cluster'] = dbscan.fit_predict(X_scaled)
 
-# Plot K-Means
-st.subheader("K-Means Clustering")
-fig1, ax1 = plt.subplots()
-ax1.scatter(X.iloc[:,0], X.iloc[:,1], c=df['KMeans Cluster'])
-ax1.set_xlabel("Annual Income")
-ax1.set_ylabel("Spending Score")
-st.pyplot(fig1)
+# 5. Visualizations
+col1, col2 = st.columns(2)
 
-# Plot DBSCAN
-st.subheader("DBSCAN Clustering")
-fig2, ax2 = plt.subplots()
-ax2.scatter(X.iloc[:,0], X.iloc[:,1], c=df['DBSCAN Cluster'])
-ax2.set_xlabel("Annual Income")
-ax2.set_ylabel("Spending Score")
-st.pyplot(fig2)
+with col1:
+    st.subheader("K-Means Clustering")
+    fig1, ax1 = plt.subplots()
+    scatter1 = ax1.scatter(X.iloc[:,0], X.iloc[:,1], c=df['KMeans Cluster'], cmap='viridis')
+    ax1.set_xlabel("Annual Income")
+    ax1.set_ylabel("Spending Score")
+    st.pyplot(fig1)
 
-# Comparison
+with col2:
+    st.subheader("DBSCAN Clustering")
+    fig2, ax2 = plt.subplots()
+    # DBSCAN often results in -1 for outliers (noise)
+    scatter2 = ax2.scatter(X.iloc[:,0], X.iloc[:,1], c=df['DBSCAN Cluster'], cmap='plasma')
+    ax2.set_xlabel("Annual Income")
+    ax2.set_ylabel("Spending Score")
+    st.pyplot(fig2)
+
+# 6. Comparison Summary
+st.divider()
 st.subheader("Comparison Summary")
-st.write("""
-- **K-Means** requires predefined clusters and works well for spherical data.
-- **DBSCAN** detects noise and finds arbitrary-shaped clusters.
-- DBSCAN labels noise as **-1**.
+st.write(f"**K-Means Clusters Found:** {len(df['KMeans Cluster'].unique())}")
+st.write(f"**DBSCAN Clusters Found:** {len(df['DBSCAN Cluster'].unique())} (including noise)")
+
+st.info("""
+- **K-Means**: Forces every point into a cluster. Works best for circular, balanced data.
+- **DBSCAN**: Identifies high-density areas. Points in low-density areas are labeled as **-1** (Noise).
 """)
-
-
-
-
-
